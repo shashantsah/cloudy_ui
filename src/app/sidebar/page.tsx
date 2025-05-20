@@ -24,7 +24,7 @@ const minimalSidebarRoutePaths = [
 
 export default function SidebarView() {
 	// const location = useLocation();
-	const isMinimalSidebar = minimalSidebarRoutePaths.includes(location.pathname);
+	// const isMinimalSidebar = minimalSidebarRoutePaths.includes(location.pathname);
 	const isSidebarFixed = false;
 	const isSidebarCollapsed = false;
 	const setIsSidebarCollapsed = () => {};
