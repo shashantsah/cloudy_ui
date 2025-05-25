@@ -612,7 +612,7 @@ import { EditorContent, Extension, JSONContent, useEditor } from "@tiptap/react"
 import { GripVertical, X } from "lucide-react";
 import { tiptapExtensions } from "./tiptap";
 import { createFileHandlerExtension } from "./fileHandlerExtension";
-import { ChatSectionView } from "./ChatSectionView";
+// import { ChatSectionView } from "./ChatSectionView";
 import Suggestion from "./suggestion/Suggestion";
 
 const documentId = "123";
@@ -1122,7 +1122,7 @@ export const EditorView = () => {
             "relative hidden w-[33vw] shrink-0 bg-background transition-[width] duration-300 ease-in-out md:block",
             !isShowingAiEditorMenu && "w-0"
           )}>
-            {isShowingAiEditorMenu && <ChatSectionView/>}
+            {/* {isShowingAiEditorMenu && <ChatSectionView/>} */}
           </div>
           <div className="no-scrollbar relative flex w-full flex-grow flex-col lg:flex-row">
             <AiGenerationContext.Provider value={{ isGenerating: false }}>

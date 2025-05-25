@@ -10,7 +10,7 @@ import { IoMdCloudOutline } from "react-icons/io";
 type CardProps = {
   title: string;
   description: string;
-  icon?: string;
+  icon?: React.ReactNode;
   timeDiff: string;
 };
 

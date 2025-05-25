@@ -1,4 +1,5 @@
-import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
+import { format, isToday, isYesterday } from "date-fns";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 
 export const makeHumanizedTime = (
     date: Date | string,

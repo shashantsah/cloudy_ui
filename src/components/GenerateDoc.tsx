@@ -12,7 +12,7 @@ import { Dialog, DialogContent } from "@/components/Dialog";
 import { useUser } from "@/stores/user";
 import { useWorkspace } from "@/stores/workspace";
 import { makeProjectDocUrl } from "@/utils/thought";
-import { AiTextArea } from "./aiTextArea/AiTextArea";
+
 
 // import { useProject } from "../projects/ProjectContext";
 
@@ -125,12 +125,12 @@ export const GenerateDoc = () => {
 						</div>
 					</div>
 					<div className="p-4">
-						<AiTextArea
+						{/* <AiTextArea
 							// onSubmit={handleSubmit}
 							onCancel={() => setIsOpen(false)}
 							placeholder="Describe the document you want to generate"
 							submitButtonText="Generate"
-						/>
+						/> */}
 					</div>
 				</DialogContent>
 			</Dialog>
