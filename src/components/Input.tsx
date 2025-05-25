@@ -1,6 +1,6 @@
 import { InputHTMLAttributes, ReactNode, forwardRef } from "react";
 
-import { cn } from "../utils";
+import { cn } from "@/utils/index";
 
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "prefix"> & {
 	className?: string;

@@ -1,4 +1,5 @@
 "use client";
+import { EditorView } from "@/components/documentDetail/EditorView";
 // import {
 // 	ArrowLeftIcon,
 // 	ChevronsLeftIcon,
@@ -172,10 +173,8 @@ import SidebarView from "@/components/SidebarView";
 export default function SidebarLayout({ children }: { children: React.ReactNode }){
 	return (
 		<>
-			 <Navbar />
+			<Navbar />
 			<div className="flex flex-1 flex-row overflow-hidden">
-				<SidebarView />
-                
 				<main className="flex h-full w-full flex-col overflow-hidden md:h-screen md:w-auto md:flex-1 md:overflow-hidden">
 					{children}
 				</main>

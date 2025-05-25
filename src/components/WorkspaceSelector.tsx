@@ -155,33 +155,25 @@ export const WorkspaceSelector = () => {
             </Link>
 
             <DropdownSeparator />
-            <span className="pb-0.5 pl-3 pt-1 text-xs font-medium text-secondary">
-              Your Workspaces
-            </span>
-
-            {allUserWorkspaces.map((workspace) => (
-              <Link to={`/workspaces/${workspace.slug}`} key={workspace.id}>
-                <DropdownItem
-                  className={cn(
-                    workspace.id === currentWorkspace.id ? "bg-card/50" : ""
-                  )}
-                >
-                  {workspace.id === currentWorkspace.id ? (
-                    <CheckIcon className="h-4 w-4" />
-                  ) : (
-                    <span className="w-4" />
-                  )}
-                  <span
-                    className={cn(
-                      "flex-1 text-sm",
-                      workspace.id === currentWorkspace.id ? "font-medium" : ""
-                    )}
-                  >
-                    {workspace.name}
-                  </span>
-                </DropdownItem>
-              </Link>
-            ))}
+          <span className="pb-0.5 pl-3 pt-1 text-xs font-medium text-secondary">Your Workspaces</span>
+						{allUserWorkspaces?.map(workspace => (
+							<Link to={`/workspaces/${workspace.slug}`} key={workspace.id}>
+								<DropdownItem className={cn(workspace.id === currentWorkspace.id ? "bg-card/50" : "")}>
+									{workspace.id === currentWorkspace.id ? (
+										<CheckIcon className="h-4 w-4" />
+									) : (
+										<span className="w-4" />
+									)}
+									<span
+										className={cn(
+											"flex-1 text-sm",
+											workspace.id === currentWorkspace.id ? "font-medium" : "",
+										)}>
+										{workspace.name}
+									</span>
+								</DropdownItem>
+							</Link>
+						))}
 
             <DropdownSeparator />
             <Link to="/onboarding/workspaces/new">

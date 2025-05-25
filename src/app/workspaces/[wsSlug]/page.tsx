@@ -9,6 +9,8 @@ import { MainLayout } from "@/components/MainLayout";
 import { makeNewProjectUrl, makeProjectHomeUrl } from "@/utils/projects";
 import { makeHeadTitle } from "@/utils/strings";
 import { useWorkspaceProjects } from "@/utils/workspaces";
+import { TitleArea } from "@/components/documentDetail/TitleArea";
+import { EditorView } from "@/components/documentDetail/EditorView";
 
 
 type Project = {
@@ -117,6 +119,7 @@ export default function HomeView(){
 					</div>
 				)}
 			</div>
+			
 		</MainLayout>
 	);
 };

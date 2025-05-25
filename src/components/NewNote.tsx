@@ -14,14 +14,15 @@ export const NewNote = ({ collectionId }: { collectionId?: string }) => {
 			className="w-full justify-start"
 			// onClick={() => createDocumentMutation.mutate({ collectionId })}
 			>
-			{/* {createDocumentMutation.isPending ? (
+				{false ? (
+			// {createDocumentMutation.isPending ? (
 				<LoadingSpinner size="xs" variant="background" />
 			) : (
 				<>
 					<FilePlusIcon className="size-4" />
 					<span>Blank doc{collectionId ? ` in collection` : ""}</span>
 				</>
-			)} */}
+			)}
 		</Button>
 	);
 };

@@ -3,16 +3,28 @@
 @tailwind utilities;
 
 :root {
- --color-primary: 220 220 227;
-		--color-secondary: 135 135 144;
-		--color-tertiary: 86 86 93;
-		--color-placeholder: 73 73 77;
-		--color-border: 49 49 54;
-		--color-background: 24 24 27;
-		--color-background-secondary: 37 37 41;
-		--color-card: 38 38 42;
-		--color-accent: 116 97 192;
+ 		--color-primary: 11 11 11;
+		--color-secondary: 116 113 111;
+		--color-tertiary: 177 175 172;
+		--color-placeholder: 186 186 182;
+		--color-border: 226 224 222;
+		--color-background: 245 245 245;
+		--color-background-secondary: 241 239 234;
+		--color-card: 233 233 232;
+		--color-accent: 108 93 171;
 		--color-accent-secondary: 255 132 84;
+
+		--radius: 1.25rem;
+
+		@import "highlight.js/styles/github.css";
+
+}
+
+:root {
+    --font-sans: "Noto Sans", sans-serif;
+    --font-serif: "Noto Serif Display", serif;
+    --font-display: "Red Hat Display", sans-serif;
+	
 }
 
 @theme inline {
@@ -22,7 +34,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;

@@ -16,6 +16,7 @@ import { WorkspaceSelector } from "@/components/WorkspaceSelector";
 import { SidebarDropdown } from "@/components/SidebarDropdown";
 import { ProjectSelector } from "@/components/ProjectSelector";
 
+
 const minimalSidebarRoutePaths = [
 	"/workspaces/new/setup",
 	"/auth/invite-accept",
@@ -34,10 +35,12 @@ export default function SidebarView() {
 	const project = true;
 
 	return (
+		
+			
 		<div className={cn("relative h-full md:h-dvh md:w-64")}> 
 			<div
 				className={cn(
-					"absolute top-0 z-50 flex h-full w-screen flex-col overflow-hidden border-r border-border bg-background py-2 pt-4 transition-transform duration-200 ease-in-out md:sticky md:h-dvh md:w-64 md:pt-2",
+					"absolute top-0 z-50 flex h-full w-screen flex-col overflow-hidden border-r border-border border-2 border-red-200 bg-background py-2 pt-4 transition-transform duration-200 ease-in-out md:sticky md:h-dvh md:w-64 md:pt-2",
 				)}>
 				{isSidebarFixed && (
 					<div className="border-b border-border px-4 pb-2">
@@ -71,6 +74,7 @@ export default function SidebarView() {
 						</div>
 					</>
 				)}
+
 				<div className="flex w-full flex-col gap-2 px-4 py-2">
 					<div className="hidden w-full flex-col items-stretch md:flex">
 						<FeedbackDropdown />
@@ -103,8 +107,10 @@ export default function SidebarView() {
 					</div>
 					<SidebarDropdown />
 				</div>
+				
 			</div>
-		</div>
+			
+		</div>   
 	);
 }
 
