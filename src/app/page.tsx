@@ -1,13 +1,24 @@
-import { ReactNode } from "react";
+"use client";
+import { ReactNode, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/Button";
 import Link from "next/link";
 import { TitleArea } from "@/components/documentDetail/TitleArea";
-import { EditorView } from "@/components/documentDetail/EditorView";
+import { EditorView }  from "@/components/documentDetail/EditorView";
 import  SidebarView  from "@/components/SideBar";
 
 
 export default function Home() {
+
+   useEffect(() => {
+    // Initialize dark mode from localStorage or preference
+    if (localStorage.theme === 'dark' || 
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
   return (
   //  <div className="bg-red-500 text-white p-4 text-center">
   //     <Button variant="outline" className="mt-4">

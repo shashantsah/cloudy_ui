@@ -47,7 +47,7 @@ const Suggestion: React.FC<SuggestionProps> = ({ suggestions }) => {
       {/* </div> */}
       <div className="p-2">
         {suggestions.length === 0 && (
-          <p className="text-[#afaeac] text-md my-2">Once Claudy understand what you are thinking about, suggestions will appear here.</p>
+          <p className="text-[#afaeac] text-md my-2">Once Tochan understand what you are thinking about, suggestions will appear here.</p>
         )}
         {suggestions.length > 0 && suggestions.map((suggestion, index) => {
           const staggerClass = `stagger-${Math.min(index + 1, 10)}`;

@@ -61,7 +61,7 @@ export const EditorBubbleMenu = ({ thoughtContext }: EditorBubbleMenuProps) => {
             }}
           >
             {isMdBreakpoint && <Hotkey keys={["Command", "K"]} />}
-            <span>Ask Cloudy</span>
+            <span>Ask Tochan</span>
             <SparklesIcon className="h-3.5 w-3.5" />
           </Button>
         </div>
