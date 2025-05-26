@@ -23,28 +23,6 @@ const Suggestion: React.FC<SuggestionProps> = ({ suggestions }) => {
 
   return (
     <div className="rounded-lg bg-background ">
-      {/* <div className="p-2 flex justify-between"> */}
-        {/* <div className="flex items-center"> */}
-          {/* <div className="text-[#9086c1] font-bold m-1">
-            <TbTopologyStar3 />
-          </div> */}
-          {/* <div className="m-1 text-secondary font-medium">
-            Claudy's Suggestions
-          </div> */}
-          {/* {suggestions.length > 0 && (
-            <div className="m-1 rounded-full bg-background text-white text-xs font-semibold w-5 h-5 flex items-center justify-center">
-              {suggestions.length}
-            </div>
-          )} */}
-        {/* </div> */}
-        {/* <div className="flex items-center">
-         
-          <button className="text-[#5e5e5e] m-1 hover:text-[#9086c1] transition-colors duration-200" onClick={() => console.log('Suggestion Panel Closed')}>
-           <X/>
-          </button>
-
-        </div> */}
-      {/* </div> */}
       <div className="p-2">
         {suggestions.length === 0 && (
           <p className="text-[#afaeac] text-md my-2">Once Tochan understand what you are thinking about, suggestions will appear here.</p>

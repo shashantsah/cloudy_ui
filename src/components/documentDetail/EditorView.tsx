@@ -19,12 +19,16 @@ import { createFileHandlerExtension } from "./fileHandlerExtension";
 // import { ChatSectionView } from "./ChatSectionView";
 import Suggestion from "./suggestion/Suggestion";
 import { fetchInitialSuggestion, pollWebSuggestion, pollWritingSuggestion } from "./suggestion/hooks/useSuggestions";
+import { TbTopologyStar3 } from "react-icons/tb";
+import { IoGlobeOutline } from "react-icons/io5";
+import SuggestionFixed from "./suggestion/SuggestionFixed";
 
 const documentId = "123";
 const isEditMode = true;
 const ydoc = new Y.Doc();
 const provider = new WebrtcProvider("example-room", ydoc);
 const userRecord = { name: "User", email: "Y6A9o@example.com" };
+
 
 const mockThought = {
   id: "thought-1",
@@ -412,6 +416,90 @@ const Editor = () => {
   const { editor, isConnected, isConnecting, isAiWriting } = useContext(ThoughtContext);
   const [isGenerating, setIsGenerating] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [webSuggestion, setWebSuggestion] = useState<string | null>(null);
+
+   const [hoverData, setHoverData] = useState({
+    show: false,
+    x: 0,
+    y: 0,
+    text: "",
+  });
+
+
+  const mouseLeaveHandlerRef = useRef<(() => void) | null>(null);
+
+  const bindHoverEvents = () => {
+    if (!editor) return;
+
+    const container = editor.view.dom;
+    const handleMouseOver = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target) return;
+
+      // Check if the element or any of its ancestors has underline style
+      let current: HTMLElement | null = target;
+      while (current) {
+        const style = window.getComputedStyle(current);
+        if (style.textDecorationLine.includes("underline")) {
+          const rect = current.getBoundingClientRect();
+          const text = current.textContent || "";
+          
+          // Store the element reference for cleanup
+          const element = current;
+          
+          // Remove any existing mouseleave handlers
+          if (mouseLeaveHandlerRef.current) {
+            element.removeEventListener("mouseleave", mouseLeaveHandlerRef.current);
+          }
+          
+          // Create new mouseleave handler
+          const mouseLeaveHandler = () => {
+            setHoverData({
+              show: false,
+              x: 0,
+              y: 0,
+              text: "",
+            });
+            element.removeEventListener("mouseleave", mouseLeaveHandler);
+          };
+          
+          // Store reference to the handler
+          mouseLeaveHandlerRef.current = mouseLeaveHandler;
+          
+          element.addEventListener("mouseleave", mouseLeaveHandler);
+
+          // Set hover data
+          setHoverData({
+            show: true,
+            x: rect.left,
+            y: rect.top + rect.height,
+            text: text,
+          });
+          return;
+        }
+        current = current.parentElement;
+      }
+    };
+
+    // Add mouseover event listener
+    container.addEventListener("mouseover", handleMouseOver);
+
+    return () => {
+      // Cleanup event listeners
+      container.removeEventListener("mouseover", handleMouseOver);
+      
+      // Remove any existing mouseleave handlers
+      if (mouseLeaveHandlerRef.current) {
+        container.removeEventListener("mouseleave", mouseLeaveHandlerRef.current);
+      }
+    };
+  };
+
+  useEffect(() => {
+    if (!editor) return;
+    bindHoverEvents();
+  }, [editor]);
+
 
   // const handleEnterPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
   //   if (e.key === 'Enter' && !isGenerating) {
@@ -510,6 +598,7 @@ const pollUntilReady = async (
           ...prev,
           { id: 2, icon: "IoMdCloudOutline", title: "Web Insight", description: web.web_suggestion, timeDiff: "Now" }
         ]);
+         setWebSuggestion(web.web_suggestion); 
       }
 
       if (writing && writing.writing_suggestion) {
@@ -594,17 +683,120 @@ const pollUntilReady = async (
                 <div className="h-[75dvh]" />
               </>
             )}
+        <SuggestionFixed suggestions={suggestions} />
           </div>
           <FooterRow thoughtContext={useContext(ThoughtContext)} />
         </div>
       </div>
 
       {/* Suggestions Panel */}
-      <SuggestionsPanel
+      {/* <SuggestionsPanel
         isOpen={isGenerating}
         onClose={() => setIsGenerating(false)}
         suggestions={suggestions}
-      />
+      /> */}
+
+       {hoverData.show && (
+        <div
+          className="absolute bg-white border w-[300px] border-gray-200 shadow-lg rounded-md  p-3 z-50  transition-opacity duration-200"
+          style={{
+            left: hoverData.x - 230,
+            top: hoverData.y,
+            opacity: hoverData.show ? 1 : 0,
+            pointerEvents: hoverData.show ? "auto" : "none",
+          }}
+          
+        >
+          <div className="flex items-center border-b pb-1">
+            <div className="text-[#8f8d8b] text-sm font-medium mt-1 ">
+              Suggestion
+            </div>
+          </div>
+          <div className="mt-2">
+            <div className="flex">
+              <div className="mt-3 text-[#9086c1]">
+                <IoGlobeOutline />
+              </div>
+              <div className="max-h-[150px] overflow-y-auto text-sm m-2 leading-relaxed">
+                {hoverData.text} {renderDescription(webSuggestion ?? "")}
+              </div>  
+            </div>
+            <div className="flex justify-between m-1 ml-4">
+              <div className="flex items-center">
+                <button
+                  className="text-[#9086c1] flex items-center bg-[#dfdae2] rounded-md p-1 m-1 hover:bg-[#e1e1e1] transition-colors duration-200"
+                  onClick={() => console.log("Show me clicked")}
+                >
+                  <TbTopologyStar3 />
+                  <span className="text-xs font-bold mx-1 p-1">Chat</span>
+                </button>
+                <button
+                  className="text-[#5e5e5e] flex items-center bg-[#e1dfdf] rounded-md p-1 m-1 hover:bg-[#e1e1e1] transition-colors duration-200"
+                  onClick={() => console.log("Reply clicked")}
+                >
+                  <span className="text-xs font-bold mx-1 p-1">Dismiss</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+
+
+const renderDescription = (text: string) => {
+    // Regex for markdown links [text](url) and plain URLs
+    const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(\bhttps?:\/\/[^\s]+)/g;
+    const parts: (string | React.ReactElement)[] = [];
+    let lastIndex = 0;
+
+    text.replace(linkRegex, (match, linkText, linkUrl, plainUrl, index) => {
+      // Add text before the match
+      if (index > lastIndex) {
+        parts.push(text.slice(lastIndex, index));
+      }
+
+      // Add the link
+      if (linkText && linkUrl) {
+        // Markdown link [text](url)
+        parts.push(<br></br>);
+        parts.push(
+          <a
+            key={index}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            {linkText}
+          </a>
+        );
+      } else if (plainUrl) {
+        // Plain URL
+        parts.push(
+          <a
+            key={index}
+            href={plainUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            {plainUrl}
+          </a>
+        );
+      }
+
+      lastIndex = index + match.length;
+      return match;
+    });
+
+    // Add remaining text after the last match
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+
+    return parts;
+  };
