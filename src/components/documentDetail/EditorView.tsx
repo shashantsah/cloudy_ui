@@ -23,6 +23,7 @@ import { TbTopologyStar3 } from "react-icons/tb";
 import { IoGlobeOutline } from "react-icons/io5";
 import SuggestionFixed from "./suggestion/SuggestionFixed";
 import { GhostSuggestion } from "./GhostSuggestion";
+import SuggestionPopup from "./suggestion/SuggestionPopup";
 
 const documentId = "123";
 const isEditMode = true;
@@ -438,15 +439,93 @@ const Editor = ({ suggestions, setSuggestions }: EditorProps) => {
   const debounceTimer = useRef<number | null>(null);
   const [webSuggestion, setWebSuggestion] = useState<string | null>(null);
 
-   const [hoverData, setHoverData] = useState({
+  //  const [hoverData, setHoverData] = useState({
+  //   show: false,
+  //   x: 0,
+  //   y: 0,
+  //   text: "",
+  // });
+
+
+  // const mouseLeaveHandlerRef = useRef<(() => void) | null>(null);
+
+  // const bindHoverEvents = () => {
+  //   if (!editor) return;
+
+  //   const container = editor.view.dom;
+  //   const handleMouseOver = (event: MouseEvent) => {
+  //     const target = event.target as HTMLElement;
+  //     if (!target) return;
+
+  //     // Check if the element or any of its ancestors has underline style
+  //     let current: HTMLElement | null = target;
+  //     while (current) {
+  //       const style = window.getComputedStyle(current);
+  //       if (style.textDecorationLine.includes("underline")) {
+  //         const rect = current.getBoundingClientRect();
+  //         const text = current.textContent || "";
+          
+  //         // Store the element reference for cleanup
+  //         const element = current;
+          
+  //         // Remove any existing mouseleave handlers
+  //         if (mouseLeaveHandlerRef.current) {
+  //           element.removeEventListener("mouseleave", mouseLeaveHandlerRef.current);
+  //         }
+          
+  //         // Create new mouseleave handler
+  //         const mouseLeaveHandler = () => {
+  //           setHoverData({
+  //             show: false,
+  //             x: 0,
+  //             y: 0,
+  //             text: "",
+  //           });
+  //           element.removeEventListener("mouseleave", mouseLeaveHandler);
+  //         };
+          
+  //         // Store reference to the handler
+  //         mouseLeaveHandlerRef.current = mouseLeaveHandler;
+          
+  //         element.addEventListener("mouseleave", mouseLeaveHandler);
+
+  //         // Set hover data
+  //         setHoverData({
+  //           show: true,
+  //           x: rect.left,
+  //           y: rect.top + rect.height,
+  //           text: text,
+  //         });
+  //         return;
+  //       }
+  //       current = current.parentElement;
+  //     }
+  //   };
+
+  //   // Add mouseover event listener
+  //   container.addEventListener("mouseover", handleMouseOver);
+
+  //   return () => {
+  //     // Cleanup event listeners
+  //     container.removeEventListener("mouseover", handleMouseOver);
+      
+  //     // Remove any existing mouseleave handlers
+  //     if (mouseLeaveHandlerRef.current) {
+  //       container.removeEventListener("mouseleave", mouseLeaveHandlerRef.current);
+  //     }
+  //   };
+  // };
+
+  const [hoverData, setHoverData] = useState({
     show: false,
     x: 0,
     y: 0,
     text: "",
   });
 
-
-  const mouseLeaveHandlerRef = useRef<(() => void) | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mouseLeaveHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
+  const popupRef = useRef<HTMLDivElement | null>(null);
 
   const bindHoverEvents = () => {
     if (!editor) return;
@@ -461,37 +540,61 @@ const Editor = ({ suggestions, setSuggestions }: EditorProps) => {
       while (current) {
         const style = window.getComputedStyle(current);
         if (style.textDecorationLine.includes("underline")) {
+          clearTimeout(hoverTimeoutRef.current ?? undefined);
           const rect = current.getBoundingClientRect();
           const text = current.textContent || "";
-          
+
           // Store the element reference for cleanup
           const element = current;
-          
+
           // Remove any existing mouseleave handlers
           if (mouseLeaveHandlerRef.current) {
-            element.removeEventListener("mouseleave", mouseLeaveHandlerRef.current);
+            element.removeEventListener(
+              "mouseleave",
+              mouseLeaveHandlerRef.current
+            );
           }
-          
+
           // Create new mouseleave handler
-          const mouseLeaveHandler = () => {
-            setHoverData({
-              show: false,
-              x: 0,
-              y: 0,
-              text: "",
-            });
+          const mouseLeaveHandler = (e: MouseEvent) => {
+            // Hide only when not hovering over either the text or popup
+            // if (!hoverData.popupHover && !hoverData.show) {
+            if (
+              popupRef.current &&
+              popupRef.current.contains(e.relatedTarget as Node)
+            ) {
+              return;
+            }
+            hoverTimeoutRef.current = setTimeout(() => {
+              // If the pointer ended up over the popup while the timer was running,
+              // abort the hide.
+              if (
+                popupRef.current &&
+                popupRef.current.matches(':hover')
+              ) {
+                return;
+              }
+              setHoverData({
+                show: false,
+                x: 0,
+                y: 0,
+                text: "",
+              });
+            }, 150);
+
             element.removeEventListener("mouseleave", mouseLeaveHandler);
           };
-          
+
           // Store reference to the handler
           mouseLeaveHandlerRef.current = mouseLeaveHandler;
-          
+
           element.addEventListener("mouseleave", mouseLeaveHandler);
 
           // Set hover data
           setHoverData({
             show: true,
             x: rect.left,
+            // y: rect.top,
             y: rect.top + rect.height,
             text: text,
           });
@@ -507,17 +610,30 @@ const Editor = ({ suggestions, setSuggestions }: EditorProps) => {
     return () => {
       // Cleanup event listeners
       container.removeEventListener("mouseover", handleMouseOver);
-      
+
       // Remove any existing mouseleave handlers
       if (mouseLeaveHandlerRef.current) {
-        container.removeEventListener("mouseleave", mouseLeaveHandlerRef.current);
+        container.removeEventListener(
+          "mouseleave",
+          mouseLeaveHandlerRef.current
+        );
       }
     };
+  };
+  const handlePopupHover = () => {
+    clearTimeout(hoverTimeoutRef.current ?? undefined);
+    setHoverData((prev) => ({ ...prev, show: true }));
+  };
+
+  const handlePopupLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoverData((prev) => ({ ...prev, show: false }));
+    }, 150);
   };
 
   useEffect(() => {
     if (!editor) return;
-    bindHoverEvents();
+    return bindHoverEvents();
   }, [editor]);
 
   const MAX_RETRIES = 20;
@@ -711,49 +827,17 @@ const idRef = useRef(1);
         suggestions={suggestions}
       /> */}
 
-       {hoverData.show && (
-        <div
-          className="absolute bg-background border w-[300px] border-gray-200 shadow-lg rounded-md  p-3 z-50  transition-opacity duration-200"
-          style={{
-            left: hoverData.x - 230,
-            top: hoverData.y,
-            opacity: hoverData.show ? 1 : 0,
-            pointerEvents: hoverData.show ? "auto" : "none",
-          }}
-          
-        >
-          <div className="flex items-center border-b pb-1">
-            <div className="text-secondary text-sm font-medium mt-1 ">
-              Suggestion
-            </div>
-          </div>
-          <div className="mt-2">
-            <div className="flex">
-              <div className="mt-3 text-secondary text-2xl">
-                <IoGlobeOutline />
-              </div>
-              <div className="max-h-[150px] overflow-y-auto text-sm m-2 leading-relaxed">
-                 {renderDescription(webSuggestion ?? "")}
-              </div>  
-            </div>
-            <div className="flex justify-between m-1 ml-4">
-              <div className="flex items-center">
-                <button
-                  className="text-[#9086c1] flex items-center bg-[#dfdae2] rounded-md p-1 m-1 hover:bg-[#e1e1e1] transition-colors duration-200"
-                  onClick={() => console.log("Show me clicked")}
-                >
-                  <TbTopologyStar3 />
-                  <span className="text-xs font-bold mx-1 p-1">Chat</span>
-                </button>
-                <button
-                  className="text-[#5e5e5e] flex items-center bg-[#e1dfdf] rounded-md p-1 m-1 hover:bg-[#e1e1e1] transition-colors duration-200"
-                  onClick={() => console.log("Reply clicked")}
-                >
-                  <span className="text-xs font-bold mx-1 p-1">Dismiss</span>
-                </button>
-              </div>
-            </div>
-          </div>
+      {hoverData.show && (
+        <div ref={popupRef}>
+          <SuggestionPopup
+            show={hoverData.show}
+            x={hoverData.x}
+            y={hoverData.y}
+            text={renderDescription(webSuggestion ?? "")}
+            onMouseEnter={handlePopupHover}
+            onMouseLeave={handlePopupLeave}
+           
+          />
         </div>
       )}
     </div>

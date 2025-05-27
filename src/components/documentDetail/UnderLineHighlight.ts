@@ -6,7 +6,7 @@ export const UnderlineHighlight = Mark.create({
   addAttributes() {
     return {
       color: {
-        default: 'red',
+        default: 'accent',
       },
     };
   },
