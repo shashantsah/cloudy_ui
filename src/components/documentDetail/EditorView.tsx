@@ -555,7 +555,7 @@ const idRef = useRef(1);
 
     try {
       const result = await fetchInitialSuggestion(text);
-
+      
       if (result.trigger && result.basic_suggestion) {
         setSuggestions(prev => [
           { id: idRef.current++, icon: "GoPencil", title: "Suggestion", description: result.basic_suggestion, timeDiff: "Just now" }
@@ -564,12 +564,11 @@ const idRef = useRef(1);
          console.log("Initial suggestion fetched:", result.basic_suggestion);
       }
 
-    
-      const [web, writing] = await Promise.all([
+    if (result.trigger){
+ const [web, writing] = await Promise.all([
       pollUntilReady(pollWebSuggestion, result.request_id, "Web"),
       pollUntilReady(pollWritingSuggestion, result.request_id, "Writing"),
     ]);
-
       if (web && web.web_suggestion) {
         console.log("Web suggestion:", web);
         setSuggestions(prev => [
@@ -586,6 +585,7 @@ const idRef = useRef(1);
         ]);
         editor?.commands.setGhostSuggestion(writing.writing_suggestion);
       }
+    }
     } catch (error) {
       setSuggestions([
         { id: idRef.current++, icon: "GoAlert", title: "Error", description: "Failed to fetch suggestions", timeDiff: "Now" }
