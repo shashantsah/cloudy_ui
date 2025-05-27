@@ -22,6 +22,7 @@ import { fetchInitialSuggestion, pollWebSuggestion, pollWritingSuggestion } from
 import { TbTopologyStar3 } from "react-icons/tb";
 import { IoGlobeOutline } from "react-icons/io5";
 import SuggestionFixed from "./suggestion/SuggestionFixed";
+import { GhostSuggestion } from "./GhostSuggestion";
 
 const documentId = "123";
 const isEditMode = true;
@@ -188,6 +189,8 @@ export const EditorView = () => {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+
 
   const disableUpdatesRef = useRef(false);
   const storedContentRef = useRef<JSONContent | null>(null);
@@ -201,7 +204,13 @@ export const EditorView = () => {
       extensions: [
         ...tiptapExtensions,
         createFileHandlerExtension(documentId),
-       
+       GhostSuggestion.configure({
+        onAccept: () => {
+         
+          setSuggestions((s) => s.filter((x) => x.id !== 3));
+         
+        },
+      }),
         Collaboration.configure({
           document: ydoc,
         }),
@@ -403,7 +412,12 @@ export const EditorView = () => {
           </div>
           <div className="no-scrollbar relative flex w-full flex-grow flex-col lg:flex-row">
             <AiGenerationContext.Provider value={{ isGenerating: false }}>
-              <Editor />
+              {/* <Editor /> */}
+              <Editor
+  suggestions={suggestions}
+  setSuggestions={setSuggestions}
+/>
+
             </AiGenerationContext.Provider>
           </div>
         </div>
@@ -412,10 +426,16 @@ export const EditorView = () => {
   );
 };
 
-const Editor = () => {
+interface EditorProps {
+  suggestions: Suggestion[];
+  setSuggestions: React.Dispatch<React.SetStateAction<Suggestion[]>>;
+}
+
+const Editor = ({ suggestions, setSuggestions }: EditorProps) => {
   const { editor, isConnected, isConnecting, isAiWriting } = useContext(ThoughtContext);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  // const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const debounceTimer = useRef<number | null>(null);
   const [webSuggestion, setWebSuggestion] = useState<string | null>(null);
 
    const [hoverData, setHoverData] = useState({
@@ -500,37 +520,6 @@ const Editor = () => {
     bindHoverEvents();
   }, [editor]);
 
-
-  // const handleEnterPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
-  //   if (e.key === 'Enter' && !isGenerating) {
-  //     e.preventDefault();
-  //     setSuggestions([
-  //       {
-  //         id: 1,
-  //         icon: "GoPencil",
-  //         title: "Title Suggestion",
-  //         description: "The impact of Neural implants on Animal behavior",
-  //         timeDiff: 'just now',
-  //       },
-  //       {
-  //         id: 2,
-  //         icon: "IoMdCloudOutline",
-  //         title: "Idea",
-  //         description: "It might be interesting to explore the impact of Neural implants on Animal behavior...",
-  //         timeDiff: 'just now',
-  //       },
-  //       {
-  //         id: 3,
-  //         icon: "GoPencil",
-  //         title: "Suggestion",
-  //         description: "Consider the ethical implications of Neural implants on Animal behavior...",
-  //         timeDiff: 'just now',
-  //       },
-  //     ]);
-  //     setIsGenerating(true);
-  //   }
-  // };
-
   const MAX_RETRIES = 20;
 const DELAY_MS = 2000;
 
@@ -558,35 +547,24 @@ const pollUntilReady = async (
   console.warn(`${label} polling timed out`);
   return null;
 };
-
-  const handleEnterPress = async (e: React.KeyboardEvent<HTMLDivElement>) => {
-  if (e.key === 'Enter' && !isGenerating) {
-    e.preventDefault();
-    const text = editor?.getText() || "";
-    if (!text || text.trim().split(/\s+/).length <= 4) return;
-
-    setIsGenerating(false);
-    setSuggestions([]); 
+const idRef = useRef(1);
+ const triggerSuggestions = useCallback(async (text: string) => {
+  if (!isGenerating) {
+    setIsGenerating(true);
+    // setSuggestions([]); 
 
     try {
       const result = await fetchInitialSuggestion(text);
 
       if (result.trigger && result.basic_suggestion) {
         setSuggestions(prev => [
-          { id: 1, icon: "GoPencil", title: "Suggestion", description: result.basic_suggestion, timeDiff: "Just now" }
+          { id: idRef.current++, icon: "GoPencil", title: "Suggestion", description: result.basic_suggestion, timeDiff: "Just now" }
         ]);
          setIsGenerating(true);
          console.log("Initial suggestion fetched:", result.basic_suggestion);
       }
 
-      // Poll web + writing suggestions in parallel
-
-      // const [web, writing] = await Promise.all([
-      //   pollWebSuggestion(result.request_id),
-      //   pollWritingSuggestion(result.request_id),
-      // ]);
-      
-
+    
       const [web, writing] = await Promise.all([
       pollUntilReady(pollWebSuggestion, result.request_id, "Web"),
       pollUntilReady(pollWritingSuggestion, result.request_id, "Writing"),
@@ -596,7 +574,7 @@ const pollUntilReady = async (
         console.log("Web suggestion:", web);
         setSuggestions(prev => [
           ...prev,
-          { id: 2, icon: "IoMdCloudOutline", title: "Web Insight", description: web.web_suggestion, timeDiff: "Now" }
+          { id: idRef.current++, icon: "IoMdCloudOutline", title: "Web Insight", description: web.web_suggestion, timeDiff: "Now" }
         ]);
          setWebSuggestion(web.web_suggestion); 
       }
@@ -604,18 +582,55 @@ const pollUntilReady = async (
       if (writing && writing.writing_suggestion) {
         setSuggestions(prev => [
           ...prev,
-          { id: 3, icon: "GoPencil", title: "Writing Suggestion", description: writing.writing_suggestion, timeDiff: "Now" }
+          { id: idRef.current++, icon: "GoPencil", title: "Writing Suggestion", description: writing.writing_suggestion, timeDiff: "Now" }
         ]);
+        editor?.commands.setGhostSuggestion(writing.writing_suggestion);
       }
     } catch (error) {
       setSuggestions([
-        { id: 0, icon: "GoAlert", title: "Error", description: "Failed to fetch suggestions", timeDiff: "Now" }
+        { id: idRef.current++, icon: "GoAlert", title: "Error", description: "Failed to fetch suggestions", timeDiff: "Now" }
       ]);
     } finally {
-      setIsGenerating(true);
+      setIsGenerating(false);
     }
   }
-};
+},[isGenerating, editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+    const onUpdate = () => {
+      const text = editor.getText().trim();
+      const wordCount = text.split(/\s+/).length;
+      if (wordCount > 4) {
+        // reset debounce
+        if (debounceTimer.current !== null) {
+          
+            window.clearTimeout(debounceTimer.current);
+        
+        }
+        debounceTimer.current = window.setTimeout(() => {
+          triggerSuggestions(text);
+        }, 1200);
+      } else {
+        // if they delete back to ≤4 words, cancel any pending fetch
+        if (debounceTimer.current !== null) {
+          
+            window.clearTimeout(debounceTimer.current);
+        
+        }
+      }
+    };
+
+    editor.on("update", onUpdate);
+    return () => {
+      editor.off("update", onUpdate);
+      if (debounceTimer.current !== null) {
+          
+            window.clearTimeout(debounceTimer.current);
+        
+        }
+    };
+  }, [editor, triggerSuggestions]);
 
 
   useEffect(() => {
@@ -677,7 +692,7 @@ const pollUntilReady = async (
                       "w-full",
                       (isAiWriting || !isConnected) && "pointer-events-none opacity-70"
                     )}
-                    onKeyDown={handleEnterPress}
+                    // onKeyDown={handleEnterPress}
                   />
                 </div>
                 <div className="h-[75dvh]" />
@@ -698,7 +713,7 @@ const pollUntilReady = async (
 
        {hoverData.show && (
         <div
-          className="absolute bg-white border w-[300px] border-gray-200 shadow-lg rounded-md  p-3 z-50  transition-opacity duration-200"
+          className="absolute bg-background border w-[300px] border-gray-200 shadow-lg rounded-md  p-3 z-50  transition-opacity duration-200"
           style={{
             left: hoverData.x - 230,
             top: hoverData.y,
@@ -708,17 +723,17 @@ const pollUntilReady = async (
           
         >
           <div className="flex items-center border-b pb-1">
-            <div className="text-[#8f8d8b] text-sm font-medium mt-1 ">
+            <div className="text-secondary text-sm font-medium mt-1 ">
               Suggestion
             </div>
           </div>
           <div className="mt-2">
             <div className="flex">
-              <div className="mt-3 text-[#9086c1]">
+              <div className="mt-3 text-secondary text-2xl">
                 <IoGlobeOutline />
               </div>
               <div className="max-h-[150px] overflow-y-auto text-sm m-2 leading-relaxed">
-                {hoverData.text} {renderDescription(webSuggestion ?? "")}
+                 {renderDescription(webSuggestion ?? "")}
               </div>  
             </div>
             <div className="flex justify-between m-1 ml-4">
