@@ -22,7 +22,7 @@ export const FooterRow = ({ thoughtContext }: FooterRowProps) => {
 			<div className="pointer-events-auto">
 				<div>
 					{!isShowingAiEditorMenu && (
-						<Button size="sm" onClick={showAiEditor}>
+						<Button size="sm" onClick={()=>{}}>
 							{isMdBreakpoint && <Hotkey keys={["Command", "O"]} />}
 							<span>Chat</span>
 						</Button>

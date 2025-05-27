@@ -158,7 +158,7 @@ const SuggestionsPanel = ({
       }}
     >
       {/* Header with drag handle */}
-      <div 
+      {/* <div 
         className="drag-handle flex items-center justify-between p-4 border-b bg-accent/10 cursor-move"
         onMouseDown={handleMouseDown}
       >
@@ -170,7 +170,7 @@ const SuggestionsPanel = ({
         >
           <X className="h-5 w-5 text-primary" />
         </button>
-      </div>
+      </div> */}
 
       {/* Content with scroll */}
       <div className="h-[calc(100%-56px)] overflow-y-auto p-4">
@@ -767,15 +767,12 @@ const idRef = useRef(1);
         false ? "pr-0 sm:pr-96" : "pr-0"
       )}>
         <div className="no-scrollbar h-full overflow-y-auto">
-          <nav className="sticky top-[-1px] z-30 -mr-2 w-full bg-background px-6 py-2 md:top-0 md:py-3">
-            {/* <div className="flex justify-between">
-              <div>Simulated NavBar</div>
-              <button onClick={() => useContext(ThoughtContext).showAiEditor()}>
-                Open AI Editor
-              </button>
-            </div> */}
-          </nav>
-          <div className="box-border flex w-full max-w-screen-lg grow flex-col px-6 md:pl-12 md:pr-20 md:pt-16 lg:flex-1">
+          {/* <nav className="sticky top-[-1px] z-30 -mr-2 w-full bg-background px-6 py-2 md:top-0 md:py-3">
+          
+          </nav> */}
+          <SuggestionFixed suggestions={suggestions} />
+           <div className="w-[70%] flex h-screen">
+ <div className="box-border flex w-full max-w-screen-lg grow flex-col px-6 md:pl-12 md:pr-20 md:pt-16 lg:flex-1">
             {isConnecting ? (
               <div className="w-full pl-8">
                 <DocumentLoadingPlaceholder />
@@ -814,19 +811,15 @@ const idRef = useRef(1);
                 <div className="h-[75dvh]" />
               </>
             )}
-        <SuggestionFixed suggestions={suggestions} />
+        
           </div>
+{/* <SuggestionFixed suggestions={suggestions} /> */}
+
+           </div>
+         
           <FooterRow thoughtContext={useContext(ThoughtContext)} />
         </div>
       </div>
-
-      {/* Suggestions Panel */}
-      {/* <SuggestionsPanel
-        isOpen={isGenerating}
-        onClose={() => setIsGenerating(false)}
-        suggestions={suggestions}
-      /> */}
-
       {hoverData.show && (
         <div ref={popupRef}>
           <SuggestionPopup
