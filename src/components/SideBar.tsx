@@ -156,11 +156,7 @@ import { ProjectsList } from "./ProjectsList";
 import { GenerateDoc } from "./GenerateDoc";
 import { LibraryView } from "./LibraryView";
 
-const minimalSidebarRoutePaths = [
-    "/workspaces/new/setup",
-    "/auth/invite-accept",
-    "/auth/complete-account-setup",
-];
+
 
 export default function SidebarView() {
     const { 
@@ -169,15 +165,12 @@ export default function SidebarView() {
         isMobileSidebarOpen,
         setIsMobileSidebarOpen,
         isSidebarFixed,
-        toggleSidebar,
-        toggleMobileSidebar
     } = useSidebarContext();
 
     const isMdBreakpoint = useBreakpoint("md");
     const isMobile = !isMdBreakpoint;
     const userRecord = { email: "user@example.com" };
     const workspace = { slug: "mock-workspace" };
-    const customerStatus = { isTrialing: true, remainingDaysInTrial: 7 };
     const project = true;
 
     useEffect(() => {
@@ -211,11 +204,11 @@ export default function SidebarView() {
         <>
             {/* Toggle button - shows when sidebar is collapsed on desktop */}
             {isSidebarCollapsed && !isMobile && (
-                <div className="fixed left-0 top-4 z-50">
+                <div className="fixed left-0 top-4">
                     <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="ml-2 border border-border bg-background shadow-sm hover:bg-card/50"
+                        className="ml-4 border border-border bg-background shadow-sm hover:bg-card/50"
                         onClick={() => setIsSidebarCollapsed(false)}
                     >
                         <PanelLeftOpenIcon className="size-5" />
@@ -225,7 +218,7 @@ export default function SidebarView() {
 
             {/* Sidebar container */}
             <div className={cn(
-                "fixed inset-0 z-40 h-full md:relative md:h-dvh",
+                "fixed inset-0 h-full md:relative md:h-dvh",
                 "transition-all duration-200",
                 isSidebarCollapsed ? "md:w-0" : "md:w-64",
                 isMobile ? "z-50" : "z-40"

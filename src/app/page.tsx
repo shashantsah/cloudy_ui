@@ -24,7 +24,7 @@ export default function Home() {
   }, []);
 
   return (
-    <SidebarProvider>
+    
  <div className="flex h-screen overflow-hidden">
       <div
         className={cn(
@@ -39,7 +39,7 @@ export default function Home() {
         <EditorView />
       </div>
     </div>
-    </SidebarProvider>
+
    
   );
 }
